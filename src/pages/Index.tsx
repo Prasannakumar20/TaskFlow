@@ -8,6 +8,8 @@ import { Header } from '@/components/Header';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { useAuth } from '@/contexts/AuthContext';
+import { useTasks } from '@/hooks/useTasks';
 
 export interface Task {
   id: string;
@@ -22,53 +24,14 @@ export interface Task {
 }
 
 const Index = () => {
-  const [tasks, setTasks] = useState<Task[]>([]);
+  const { user, loading: authLoading } = useAuth();
+  const { tasks, loading: tasksLoading, createTask, updateTask, deleteTask, shareTaskViaEmail } = useTasks();
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [filterStatus, setFilterStatus] = useState<string>('all');
   const [filterPriority, setFilterPriority] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState('');
-
-  // Sample tasks for demonstration
-  useEffect(() => {
-    const sampleTasks: Task[] = [
-      {
-        id: '1',
-        title: 'Design Dashboard UI',
-        description: 'Create wireframes and mockups for the main dashboard',
-        priority: 'high',
-        status: 'in-progress',
-        dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
-        createdAt: new Date(),
-        sharedWith: ['john@example.com'],
-        tags: ['design', 'ui/ux']
-      },
-      {
-        id: '2',
-        title: 'Implement Authentication',
-        description: 'Set up OAuth with Google and GitHub',
-        priority: 'high',
-        status: 'todo',
-        dueDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
-        createdAt: new Date(),
-        sharedWith: [],
-        tags: ['backend', 'auth']
-      },
-      {
-        id: '3',
-        title: 'Write API Documentation',
-        description: 'Document all REST endpoints',
-        priority: 'medium',
-        status: 'completed',
-        dueDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-        createdAt: new Date(),
-        sharedWith: [],
-        tags: ['documentation']
-      }
-    ];
-    setTasks(sampleTasks);
-  }, []);
 
   // Filter tasks based on current filters
   useEffect(() => {
@@ -93,42 +56,66 @@ const Index = () => {
     setFilteredTasks(filtered);
   }, [tasks, filterStatus, filterPriority, searchQuery]);
 
-  const handleCreateTask = (taskData: Omit<Task, 'id' | 'createdAt'>) => {
-    const newTask: Task = {
-      ...taskData,
-      id: Date.now().toString(),
-      createdAt: new Date()
-    };
-    setTasks(prev => [...prev, newTask]);
+  const handleCreateTask = async (taskData: Omit<Task, 'id' | 'createdAt'>) => {
+    await createTask(taskData);
     setIsFormOpen(false);
   };
 
-  const handleUpdateTask = (taskData: Omit<Task, 'id' | 'createdAt'>) => {
+  const handleUpdateTask = async (taskData: Omit<Task, 'id' | 'createdAt'>) => {
     if (!editingTask) return;
-    
-    setTasks(prev => prev.map(task => 
-      task.id === editingTask.id 
-        ? { ...task, ...taskData }
-        : task
-    ));
+    await updateTask(editingTask.id, taskData);
     setEditingTask(null);
   };
 
-  const handleDeleteTask = (taskId: string) => {
-    setTasks(prev => prev.filter(task => task.id !== taskId));
+  const handleDeleteTask = async (taskId: string) => {
+    await deleteTask(taskId);
   };
 
   const handleEditTask = (task: Task) => {
     setEditingTask(task);
   };
 
-  const handleStatusChange = (taskId: string, newStatus: Task['status']) => {
-    setTasks(prev => prev.map(task => 
-      task.id === taskId 
-        ? { ...task, status: newStatus }
-        : task
-    ));
+  const handleStatusChange = async (taskId: string, newStatus: Task['status']) => {
+    await updateTask(taskId, { status: newStatus });
   };
+
+  const handleShareTask = async (task: Task, emails: string[]) => {
+    await shareTaskViaEmail(task, emails);
+  };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-gradient-to-br from-purple-600 via-pink-600 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg animate-pulse mx-auto mb-4">
+            <span className="text-white font-bold text-2xl">T</span>
+          </div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50">
+        <Header />
+        <div className="container mx-auto px-4 py-16 text-center">
+          <div className="max-w-md mx-auto">
+            <div className="w-24 h-24 bg-gradient-to-br from-purple-600 via-pink-600 to-orange-500 rounded-2xl flex items-center justify-center shadow-lg mx-auto mb-8">
+              <span className="text-white font-bold text-4xl">T</span>
+            </div>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
+              Welcome to TaskFlow
+            </h1>
+            <p className="text-gray-600 mb-8">
+              Sign in with your Google account to start managing tasks, collaborating with your team, and staying organized.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 relative overflow-hidden">
@@ -147,7 +134,7 @@ const Index = () => {
             <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
               Task Management
             </h1>
-            <p className="text-gray-600">Organize, prioritize, and collaborate on your tasks</p>
+            <p className="text-gray-600">Organize, prioritize, and collaborate on your tasks in real-time</p>
           </div>
 
           <TaskStats tasks={tasks} />
@@ -165,12 +152,19 @@ const Index = () => {
             </div>
             
             <div className="lg:col-span-3">
-              <TaskBoard
-                tasks={filteredTasks}
-                onEditTask={handleEditTask}
-                onDeleteTask={handleDeleteTask}
-                onStatusChange={handleStatusChange}
-              />
+              {tasksLoading ? (
+                <div className="flex items-center justify-center py-12">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-600"></div>
+                </div>
+              ) : (
+                <TaskBoard
+                  tasks={filteredTasks}
+                  onEditTask={handleEditTask}
+                  onDeleteTask={handleDeleteTask}
+                  onStatusChange={handleStatusChange}
+                  onShareTask={handleShareTask}
+                />
+              )}
             </div>
           </div>
         </div>
