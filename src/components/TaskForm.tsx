@@ -70,8 +70,8 @@ export const TaskForm = ({ task, onSubmit, onClose, isEditing = false }: TaskFor
   };
 
   return (
-    <div className="space-y-6">
-      <DialogHeader>
+    <div className="w-full max-w-2xl mx-auto">
+      <DialogHeader className="mb-6">
         <DialogTitle className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
           {isEditing ? 'Edit Task' : 'Create New Task'}
         </DialogTitle>
@@ -141,6 +141,7 @@ export const TaskForm = ({ task, onSubmit, onClose, isEditing = false }: TaskFor
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
+                type="button"
                 className={cn(
                   "w-full justify-start text-left font-normal border-purple-200 focus:border-purple-400",
                   !dueDate && "text-muted-foreground"
@@ -233,7 +234,7 @@ export const TaskForm = ({ task, onSubmit, onClose, isEditing = false }: TaskFor
           )}
         </div>
 
-        <div className="flex justify-end gap-3 pt-4">
+        <div className="flex justify-end gap-3 pt-6 border-t">
           <Button type="button" variant="outline" onClick={onClose}>
             Cancel
           </Button>

@@ -4,11 +4,19 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { Bell, Settings, LogOut, User, Check, Clock, AlertTriangle } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 export const Header = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userEmail, setUserEmail] = useState('');
+  const [userName, setUserName] = useState('');
+  const [isProfileSetup, setIsProfileSetup] = useState(false);
+  const [tempEmail, setTempEmail] = useState('');
+  const [tempName, setTempName] = useState('');
   const [notifications] = useState([
     { id: 1, title: 'Task Due Soon', message: 'Complete project proposal by 5 PM', type: 'warning', time: '2 minutes ago' },
     { id: 2, title: 'Task Completed', message: 'John marked "Database setup" as complete', type: 'success', time: '1 hour ago' },
@@ -21,6 +29,24 @@ export const Header = () => {
       case 'success': return <Check className="h-4 w-4 text-green-500" />;
       default: return <Clock className="h-4 w-4 text-blue-500" />;
     }
+  };
+
+  const handleSignIn = () => {
+    setIsLoggedIn(true);
+    setIsProfileSetup(true);
+  };
+
+  const handleProfileSave = () => {
+    setUserEmail(tempEmail);
+    setUserName(tempName);
+    setIsProfileSetup(false);
+  };
+
+  const getUserInitials = () => {
+    if (userName) {
+      return userName.split(' ').map(n => n[0]).join('').toUpperCase();
+    }
+    return 'U';
   };
 
   return (
@@ -86,21 +112,21 @@ export const Header = () => {
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" className="p-0 hover:ring-2 hover:ring-purple-200 transition-all rounded-full">
                       <Avatar className="cursor-pointer border-2 border-purple-200 hover:border-purple-400 transition-colors h-10 w-10">
-                        <AvatarImage src="https://github.com/shadcn.png" />
+                        <AvatarImage src="" />
                         <AvatarFallback className="bg-gradient-to-br from-purple-600 to-pink-600 text-white font-semibold">
-                          JD
+                          {getUserInitials()}
                         </AvatarFallback>
                       </Avatar>
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56 bg-white border border-gray-200 shadow-xl">
                     <div className="px-4 py-3 border-b border-gray-100">
-                      <p className="text-sm font-medium text-gray-900">John Doe</p>
-                      <p className="text-xs text-gray-500">john.doe@example.com</p>
+                      <p className="text-sm font-medium text-gray-900">{userName || 'User'}</p>
+                      <p className="text-xs text-gray-500">{userEmail || 'user@example.com'}</p>
                     </div>
-                    <DropdownMenuItem className="hover:bg-purple-50 cursor-pointer">
+                    <DropdownMenuItem className="hover:bg-purple-50 cursor-pointer" onClick={() => setIsProfileSetup(true)}>
                       <User className="mr-3 h-4 w-4 text-gray-500" />
-                      <span>Profile</span>
+                      <span>Edit Profile</span>
                     </DropdownMenuItem>
                     <DropdownMenuItem className="hover:bg-purple-50 cursor-pointer">
                       <Settings className="mr-3 h-4 w-4 text-gray-500" />
@@ -120,13 +146,13 @@ export const Header = () => {
               <div className="flex space-x-3">
                 <Button 
                   variant="ghost" 
-                  onClick={() => setIsLoggedIn(true)}
+                  onClick={handleSignIn}
                   className="hover:bg-purple-50 text-gray-700 font-medium px-6"
                 >
                   Sign In
                 </Button>
                 <Button 
-                  onClick={() => setIsLoggedIn(true)}
+                  onClick={handleSignIn}
                   className="bg-gradient-to-r from-purple-600 via-pink-600 to-orange-500 hover:from-purple-700 hover:via-pink-700 hover:to-orange-600 text-white font-medium px-6 shadow-lg hover:shadow-xl transition-all"
                 >
                   Get Started
@@ -136,6 +162,52 @@ export const Header = () => {
           </div>
         </div>
       </div>
+
+      {/* Profile Setup Dialog */}
+      <Dialog open={isProfileSetup} onOpenChange={setIsProfileSetup}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              Set Up Your Profile
+            </DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="name">Full Name</Label>
+              <Input
+                id="name"
+                value={tempName}
+                onChange={(e) => setTempName(e.target.value)}
+                placeholder="Enter your full name"
+                className="border-purple-200 focus:border-purple-400"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="email">Email Address</Label>
+              <Input
+                id="email"
+                type="email"
+                value={tempEmail}
+                onChange={(e) => setTempEmail(e.target.value)}
+                placeholder="Enter your email address"
+                className="border-purple-200 focus:border-purple-400"
+              />
+            </div>
+            <div className="flex justify-end gap-3">
+              <Button variant="outline" onClick={() => setIsProfileSetup(false)}>
+                Cancel
+              </Button>
+              <Button 
+                onClick={handleProfileSave}
+                className="bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+                disabled={!tempEmail.trim() || !tempName.trim()}
+              >
+                Save Profile
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </header>
   );
 };
