@@ -1,7 +1,6 @@
 
 import { TaskCard } from '@/components/TaskCard';
 import { Task } from '@/pages/Index';
-import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 interface TaskBoardProps {
   tasks: Task[];
