@@ -141,9 +141,7 @@ src/
 
 ## 🎥 Demo Video
 
-[Loom Demo Video](https://your-loom-video-link-here)
-
-*Note: Please record and add your demo video link here*
+[Loom Demo Video] : ([https://your-loom-video-link-here](https://drive.google.com/file/d/1VCxrDk2tR7i_VxK4ILyQGsHzTkNrRDnF/view?usp=drive_link))
 
 ## 🚀 Deployment
 
@@ -176,5 +174,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - The React and TypeScript communities for excellent documentation
 
 ---
+## Project: https://cosmic-task-pulse.lovable.app/
 
 **This project is a part of a hackathon run by https://www.katomaran.com**
