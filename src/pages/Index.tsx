@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { TaskBoard } from '@/components/TaskBoard';
 import { TaskForm } from '@/components/TaskForm';
@@ -8,6 +7,7 @@ import { Header } from '@/components/Header';
 import { Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
+import { useAuth } from '@/contexts/AuthContext';
 
 export interface Task {
   id: string;
@@ -22,6 +22,7 @@ export interface Task {
 }
 
 const Index = () => {
+  const { user } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [filteredTasks, setFilteredTasks] = useState<Task[]>([]);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -32,43 +33,45 @@ const Index = () => {
 
   // Sample tasks for demonstration
   useEffect(() => {
-    const sampleTasks: Task[] = [
-      {
-        id: '1',
-        title: 'Design Dashboard UI',
-        description: 'Create wireframes and mockups for the main dashboard',
-        priority: 'high',
-        status: 'in-progress',
-        dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
-        createdAt: new Date(),
-        sharedWith: ['john@example.com'],
-        tags: ['design', 'ui/ux']
-      },
-      {
-        id: '2',
-        title: 'Implement Authentication',
-        description: 'Set up OAuth with Google and GitHub',
-        priority: 'high',
-        status: 'todo',
-        dueDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
-        createdAt: new Date(),
-        sharedWith: [],
-        tags: ['backend', 'auth']
-      },
-      {
-        id: '3',
-        title: 'Write API Documentation',
-        description: 'Document all REST endpoints',
-        priority: 'medium',
-        status: 'completed',
-        dueDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
-        createdAt: new Date(),
-        sharedWith: [],
-        tags: ['documentation']
-      }
-    ];
-    setTasks(sampleTasks);
-  }, []);
+    if (user) {
+      const sampleTasks: Task[] = [
+        {
+          id: '1',
+          title: 'Design Dashboard UI',
+          description: 'Create wireframes and mockups for the main dashboard',
+          priority: 'high',
+          status: 'in-progress',
+          dueDate: new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
+          createdAt: new Date(),
+          sharedWith: ['john@example.com'],
+          tags: ['design', 'ui/ux']
+        },
+        {
+          id: '2',
+          title: 'Implement Authentication',
+          description: 'Set up OAuth with Google and GitHub',
+          priority: 'high',
+          status: 'todo',
+          dueDate: new Date(Date.now() + 5 * 24 * 60 * 60 * 1000),
+          createdAt: new Date(),
+          sharedWith: [],
+          tags: ['backend', 'auth']
+        },
+        {
+          id: '3',
+          title: 'Write API Documentation',
+          description: 'Document all REST endpoints',
+          priority: 'medium',
+          status: 'completed',
+          dueDate: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000),
+          createdAt: new Date(),
+          sharedWith: [],
+          tags: ['documentation']
+        }
+      ];
+      setTasks(sampleTasks);
+    }
+  }, [user]);
 
   // Filter tasks based on current filters
   useEffect(() => {
@@ -130,8 +133,32 @@ const Index = () => {
     ));
   };
 
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900">
+        <Header tasks={tasks} />
+        <div className="flex items-center justify-center min-h-[80vh]">
+          <div className="text-center">
+            <div className="w-24 h-24 bg-gradient-to-br from-purple-600 via-pink-600 to-orange-500 rounded-full flex items-center justify-center mx-auto mb-6">
+              <span className="text-white font-bold text-3xl">T</span>
+            </div>
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
+              Welcome to TaskFlow
+            </h1>
+            <p className="text-gray-600 dark:text-gray-300 mb-8 max-w-md">
+              Organize, prioritize, and collaborate on your tasks with real-time notifications and calendar integration.
+            </p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Please sign in to access your tasks and start managing your productivity.
+            </p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-pink-50 dark:from-gray-900 dark:via-gray-800 dark:to-gray-900 relative overflow-hidden">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute -top-40 -right-40 w-80 h-80 bg-gradient-to-br from-purple-400/20 to-pink-400/20 rounded-full blur-3xl animate-pulse"></div>
@@ -140,14 +167,14 @@ const Index = () => {
       </div>
 
       <div className="relative z-10">
-        <Header />
+        <Header tasks={tasks} />
         
         <div className="container mx-auto px-4 py-8">
           <div className="mb-8">
             <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-2">
               Task Management
             </h1>
-            <p className="text-gray-600">Organize, prioritize, and collaborate on your tasks</p>
+            <p className="text-gray-600 dark:text-gray-300">Organize, prioritize, and collaborate on your tasks</p>
           </div>
 
           <TaskStats tasks={tasks} />
@@ -185,7 +212,7 @@ const Index = () => {
               <Plus className="h-8 w-8" />
             </Button>
           </DialogTrigger>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             <TaskForm
               onSubmit={handleCreateTask}
               onClose={() => setIsFormOpen(false)}
@@ -195,7 +222,7 @@ const Index = () => {
 
         {/* Edit Task Dialog */}
         <Dialog open={!!editingTask} onOpenChange={() => setEditingTask(null)}>
-          <DialogContent className="max-w-2xl">
+          <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
             {editingTask && (
               <TaskForm
                 task={editingTask}
