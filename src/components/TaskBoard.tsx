@@ -7,10 +7,9 @@ interface TaskBoardProps {
   onEditTask: (task: Task) => void;
   onDeleteTask: (taskId: string) => void;
   onStatusChange: (taskId: string, status: Task['status']) => void;
-  onShareTask: (task: Task, emails: string[]) => void;
 }
 
-export const TaskBoard = ({ tasks, onEditTask, onDeleteTask, onStatusChange, onShareTask }: TaskBoardProps) => {
+export const TaskBoard = ({ tasks, onEditTask, onDeleteTask, onStatusChange }: TaskBoardProps) => {
   const todoTasks = tasks.filter(task => task.status === 'todo');
   const inProgressTasks = tasks.filter(task => task.status === 'in-progress');
   const completedTasks = tasks.filter(task => task.status === 'completed');
@@ -43,7 +42,6 @@ export const TaskBoard = ({ tasks, onEditTask, onDeleteTask, onStatusChange, onS
                   onEdit={() => onEditTask(task)}
                   onDelete={() => onDeleteTask(task.id)}
                   onStatusChange={(status) => onStatusChange(task.id, status)}
-                  onShare={(emails) => onShareTask(task, emails)}
                 />
               ))}
               

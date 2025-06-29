@@ -6,17 +6,15 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Calendar, MoreHorizontal, Edit, Trash2, Share, Clock, Users } from 'lucide-react';
 import { Task } from '@/pages/Index';
 import { format } from 'date-fns';
-import { SocialShareDialog } from '@/components/SocialShareDialog';
 
 interface TaskCardProps {
   task: Task;
   onEdit: () => void;
   onDelete: () => void;
   onStatusChange: (status: Task['status']) => void;
-  onShare: (emails: string[]) => void;
 }
 
-export const TaskCard = ({ task, onEdit, onDelete, onStatusChange, onShare }: TaskCardProps) => {
+export const TaskCard = ({ task, onEdit, onDelete, onStatusChange }: TaskCardProps) => {
   const priorityColors = {
     high: 'bg-red-100 text-red-800 border-red-200',
     medium: 'bg-yellow-100 text-yellow-800 border-yellow-200',
@@ -52,6 +50,10 @@ export const TaskCard = ({ task, onEdit, onDelete, onStatusChange, onShare }: Ta
               <DropdownMenuItem onClick={onEdit}>
                 <Edit className="mr-2 h-4 w-4" />
                 Edit
+              </DropdownMenuItem>
+              <DropdownMenuItem>
+                <Share className="mr-2 h-4 w-4" />
+                Share
               </DropdownMenuItem>
               <DropdownMenuItem onClick={onDelete} className="text-red-600">
                 <Trash2 className="mr-2 h-4 w-4" />
@@ -139,10 +141,6 @@ export const TaskCard = ({ task, onEdit, onDelete, onStatusChange, onShare }: Ta
                 </Button>
               )}
             </div>
-          </div>
-
-          <div className="pt-2">
-            <SocialShareDialog task={task} onEmailShare={onShare} />
           </div>
         </div>
       </CardContent>
